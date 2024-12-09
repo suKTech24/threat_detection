@@ -1,0 +1,39 @@
+INSERT INTO placeholder_detection_table
+(
+    detection_name,
+    mitre_tactics_number,
+    mitre_tactics_name,
+    mitre_tactics_link,
+    mitre_techniques_number,
+    mitre_techniques_name,
+    mitre_techniques_link,
+    event_time,
+    event_id,
+    process_executable,
+    registry_path,
+    user,
+    hostname
+)
+SELECT
+    'win_suspicious_run_key_from_download' AS detection_name,
+    'TA0003' AS mitre_tactics_number,                          -- Persistence Tactic
+    'Persistence' AS mitre_tactics_name,
+    'https://attack.mitre.org/tactics/TA0003/' AS mitre_tactics_link,
+    'T1071.001, T1547.001' AS mitre_techniques_number,                    
+    'Application Layer Protocol: Web Protocols, Boot or Logon Autostart Execution: Registry Run Keys / Startup Folder' AS mitre_techniques_name,
+    'https://attack.mitre.org/techniques/T1071/001/, https://attack.mitre.org/techniques/T1547/001/' AS mitre_techniques_link,
+    event_time,
+    event_id,
+    process_executable,
+    registry_path,
+    user,
+    hostname
+FROM
+    {{windows_registry_events_table}}
+WHERE
+    (
+        process_executable LIKE '%/downloads/%'
+        OR process_executable LIKE '%/temporary internet files/content.outlook/%'
+        OR process_executable LIKE '%/local settings/temporary internet files/%'
+    )
+    AND registry_path LIKE '%/software/microsoft/windows/currentversion/run/%'
